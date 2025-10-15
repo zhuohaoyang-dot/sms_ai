@@ -1,0 +1,197 @@
+/* src/components/RecordModal.css */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+  }
+  
+  .modal-content {
+    background: white;
+    border-radius: 16px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  
+  .modal-header h2 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a1a1a;
+  }
+  
+  .close-btn {
+    padding: 8px;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #6b7280;
+    transition: all 0.2s;
+  }
+  
+  .close-btn:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+  }
+  
+  .modal-body {
+    padding: 24px;
+  }
+  
+  .info-section {
+    margin-bottom: 24px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 12px;
+  }
+  
+  .info-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+  }
+  
+  .info-item {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  .info-item:last-child {
+    margin-bottom: 0;
+  }
+  
+  .info-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    min-width: 120px;
+  }
+  
+  .info-value {
+    font-size: 14px;
+    color: #1f2937;
+    flex: 1;
+  }
+  
+  .info-link {
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .info-link:hover {
+    text-decoration: underline;
+  }
+  
+  .panel-section {
+    margin-bottom: 24px;
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #e5e7eb;
+  }
+  
+  .panel-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 16px;
+  }
+  
+  .panel-a {
+    border-color: #3b82f6;
+    background: rgba(59, 130, 246, 0.02);
+  }
+  
+  .panel-b {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.02);
+  }
+  
+  .data-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .data-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .data-item.full-width {
+    grid-column: 1 / -1;
+  }
+  
+  .data-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .data-value {
+    font-size: 14px;
+    color: #1f2937;
+    padding: 8px 12px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .data-value.text-content,
+  .data-value.reason-content {
+    line-height: 1.6;
+    min-height: 60px;
+  }
+  
+  .data-value.badge {
+    display: inline-block;
+    width: fit-content;
+    padding: 6px 12px;
+    background: #f3f4f6;
+    font-weight: 500;
+    font-size: 13px;
+  }
+  
+  .data-value.status.approved {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+    font-weight: 600;
+    border-color: #10b981;
+  }
+  
+  .data-value.status.rejected {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    font-weight: 600;
+    border-color: #ef4444;
+  }
+  
+  .data-value.flagged {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    font-weight: 600;
+    border-color: #f59e0b;
+  }

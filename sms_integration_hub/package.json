@@ -1,0 +1,27 @@
+{
+    "name": "integration-hub-backend",
+    "version": "1.0.0",
+    "description": "Integration Hub Dashboard Backend",
+    "main": "src/app.js",
+    "scripts": {
+        "start": "node src/app.js",
+        "dev": "nodemon src/app.js",
+        "test:db": "node testCrawler.js"
+    },
+    "keywords": [
+        "dashboard",
+        "integration",
+        "mysql"
+    ],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "cors": "^2.8.5",
+        "dotenv": "^16.6.1",
+        "express": "^4.21.2",
+        "mysql2": "^3.15.2"
+    },
+    "devDependencies": {
+        "nodemon": "^3.1.10"
+    }
+}
