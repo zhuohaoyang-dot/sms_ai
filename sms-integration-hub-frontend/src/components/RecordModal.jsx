@@ -45,6 +45,18 @@ function RecordModal({ record, onClose }) {
                 </div>
               </div>
 
+              {/* Show Modified Text only if send_status = 2 */}
+              {record.sendStatus === 2 && record.modifiedData && (
+                <div className="data-item">
+                  <span className="data-label modified-label">Modified Text:</span>
+                  <div className="data-value text-content modified-content">
+                    {typeof record.modifiedData === 'string' 
+                      ? record.modifiedData 
+                      : record.modifiedData.text || JSON.stringify(record.modifiedData)}
+                  </div>
+                </div>
+              )}
+
               <div className="data-item">
                 <span className="data-label">Reply Action:</span>
                 <span className="data-value badge">
@@ -80,9 +92,9 @@ function RecordModal({ record, onClose }) {
             <h3>Panel B: Evaluation Result</h3>
             <div className="data-grid">
               <div className="data-item">
-                <span className="data-label">Approved:</span>
-                <span className={`data-value status ${record.evaluateResult?.approved ? 'approved' : 'rejected'}`}>
-                  {record.evaluateResult?.approved ? 'Yes' : 'No'}
+                <span className="data-label">Need Human Review:</span>
+                <span className={`data-value status ${!record.evaluateResult?.approved ? 'needs-review' : 'no-review'}`}>
+                  {!record.evaluateResult?.approved ? 'Yes' : 'No'}
                 </span>
               </div>
 

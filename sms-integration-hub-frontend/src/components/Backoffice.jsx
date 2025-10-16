@@ -107,8 +107,8 @@ function Backoffice() {
               <thead>
                 <tr>
                   <th>Matter Link</th>
-                  <th>Text</th>
-                  <th>Approved</th>
+                  <th>Need Human Review</th>
+                  <th>Modified</th>
                   <th>Flag</th>
                   <th>Time</th>
                   <th>Details</th>
@@ -128,22 +128,22 @@ function Backoffice() {
                         <ExternalLink size={14} />
                       </a>
                     </td>
-                    <td className="text-cell">
-                      <div className="text-truncate">
-                        {record.text}
-                      </div>
-                    </td>
                     <td>
-                      <span className={`status-badge ${record.approved ? 'approved' : 'rejected'}`}>
-                        {record.approved ? (
+                      <span className={`status-badge ${!record.approved ? 'needs-review' : 'no-review'}`}>
+                        {!record.approved ? (
                           <>
-                            <Check size={14} /> Approved
+                            <Check size={14} /> Yes
                           </>
                         ) : (
                           <>
-                            <X size={14} /> Rejected
+                            <X size={14} /> No
                           </>
                         )}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={`modified-badge ${record.sendStatus === 2 ? 'modified' : 'not-modified'}`}>
+                        {record.sendStatus === 2 ? 'Yes' : 'No'}
                       </span>
                     </td>
                     <td>

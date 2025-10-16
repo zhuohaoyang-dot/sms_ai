@@ -85,12 +85,12 @@ class AIGenerateResultModel {
   }
 
   /**
-   * Get records for Backoffice Panel with matter information
-   * @param {string} startDate
-   * @param {string} endDate
-   * @param {number} limit
-   * @param {number} offset
-   */
+     * Get records for Backoffice Panel with matter information
+     * @param {string} startDate
+     * @param {string} endDate
+     * @param {number} limit
+     * @param {number} offset
+     */
   async getBackofficeRecords(startDate, endDate, limit = 50, offset = 0) {
     const sql = `
       SELECT 
@@ -140,6 +140,7 @@ class AIGenerateResultModel {
         text: resultData.text || '',
         approved: evaluateResult.approved || false,
         flag: evaluateResult.flag || 'null',
+        sendStatus: record.send_status, // Add send_status for Modified column
         createdTime: record.created_time,
         // Complete data for modal
         resultData: {
@@ -172,16 +173,17 @@ class AIGenerateResultModel {
     const result = await query(this.dbName, sql, [startDate, endDate]);
     return result[0].total;
   }
-
+ 
   /**
-   * Get single record detail by ID
-   */
+     * Get single record detail by ID
+     */
   async getRecordById(id) {
     const sql = `
       SELECT 
         ai.id,
         ai.matter_id,
         ai.result_data,
+        ai.modified_data,
         ai.evaluate_result,
         ai.send_status,
         ai.created_time,
@@ -200,6 +202,7 @@ class AIGenerateResultModel {
 
     const record = records[0];
     let resultData = {};
+    let modifiedData = {};
     let evaluateResult = {};
     
     try {
@@ -208,6 +211,25 @@ class AIGenerateResultModel {
         : record.result_data;
     } catch (e) {
       console.error('Error parsing result_data:', e);
+    }
+
+    try {
+      // Check if modified_data is JSON or plain text
+      if (record.modified_data) {
+        if (typeof record.modified_data === 'string') {
+          // Try to parse as JSON first
+          try {
+            modifiedData = JSON.parse(record.modified_data);
+          } catch {
+            // If JSON parsing fails, treat as plain text
+            modifiedData = record.modified_data;
+          }
+        } else {
+          modifiedData = record.modified_data;
+        }
+      }
+    } catch (e) {
+      console.error('Error parsing modified_data:', e);
     }
 
     try {
@@ -223,6 +245,7 @@ class AIGenerateResultModel {
       matterLink: `app.bridgify.com/v2/matter/id/${record.matter_digital_id}/overview`,
       matterName: record.matter_name,
       resultData,
+      modifiedData,
       evaluateResult,
       sendStatus: record.send_status,
       createdTime: record.created_time
