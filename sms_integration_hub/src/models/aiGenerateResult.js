@@ -24,7 +24,8 @@ class AIGenerateResultModel {
         END) as approved_sent,
         SUM(CASE 
           WHEN JSON_EXTRACT(evaluate_result, '$.flag') IS NOT NULL 
-          AND JSON_EXTRACT(evaluate_result, '$.flag') != 'null' 
+          AND JSON_EXTRACT(evaluate_result, '$.flag') != 'null'
+          AND send_status IN (1, 2)
           THEN 1 ELSE 0 
         END) as flagged_count,
         SUM(CASE WHEN send_status = 1 THEN 1 ELSE 0 END) as sent_without_modification,
@@ -61,6 +62,8 @@ class AIGenerateResultModel {
         DATE_FORMAT(created_time, '${dateFormat}') as time_period,
         COUNT(*) as total_records,
         SUM(CASE WHEN send_status IN (1, 2) THEN 1 ELSE 0 END) as total_sendable,
+        SUM(CASE WHEN send_status = 1 THEN 1 ELSE 0 END) as sent_without_modification,
+        SUM(CASE WHEN send_status = 2 THEN 1 ELSE 0 END) as sent_with_modification,
         SUM(CASE 
           WHEN JSON_EXTRACT(evaluate_result, '$.approved') = true 
           AND send_status IN (1, 2) 
@@ -68,7 +71,8 @@ class AIGenerateResultModel {
         END) as approved_sent,
         SUM(CASE 
           WHEN JSON_EXTRACT(evaluate_result, '$.flag') IS NOT NULL 
-          AND JSON_EXTRACT(evaluate_result, '$.flag') != 'null' 
+          AND JSON_EXTRACT(evaluate_result, '$.flag') != 'null'
+          AND send_status IN (1, 2)
           THEN 1 ELSE 0 
         END) as flagged_count
       FROM bl_venture_ai.bl_ai_generate_result
@@ -99,7 +103,7 @@ class AIGenerateResultModel {
         m.id as matter_digital_id,
         m.matter_name
       FROM bl_venture_ai.bl_ai_generate_result ai
-      LEFT JOIN ${this.matterDbName}.bl_matter m ON ai.matter_id = m.id
+      LEFT JOIN ${this.matterDbName}.bl_matter m ON ai.matter_id = m.matter_id
       WHERE ai.evaluate_result IS NOT NULL
         AND ai.created_time BETWEEN ? AND ?
       ORDER BY ai.created_time DESC
@@ -131,7 +135,7 @@ class AIGenerateResultModel {
 
       return {
         id: record.id,
-        matterLink: `app.bridgify.com/v2/matter/${record.matter_digital_id}/overview`,
+        matterLink: `app.bridgify.com/v2/matter/id/${record.matter_digital_id}/overview`,
         matterName: record.matter_name,
         text: resultData.text || '',
         approved: evaluateResult.approved || false,
@@ -160,7 +164,7 @@ class AIGenerateResultModel {
   async getBackofficeRecordsCount(startDate, endDate) {
     const sql = `
       SELECT COUNT(*) as total
-      FROM bl_ai_generate_result
+      FROM bl_venture_ai.bl_ai_generate_result
       WHERE evaluate_result IS NOT NULL
         AND created_time BETWEEN ? AND ?
     `;
@@ -184,7 +188,7 @@ class AIGenerateResultModel {
         m.id as matter_digital_id,
         m.matter_name
       FROM bl_venture_ai.bl_ai_generate_result ai
-      LEFT JOIN ${this.matterDbName}.bl_matter m ON ai.matter_id = m.id
+      LEFT JOIN ${this.matterDbName}.bl_matter m ON ai.matter_id = m.matter_id
       WHERE ai.id = ?
     `;
 
@@ -216,7 +220,7 @@ class AIGenerateResultModel {
 
     return {
       id: record.id,
-      matterLink: `app.bridgify.com/v2/matter/${record.matter_digital_id}/overview`,
+      matterLink: `app.bridgify.com/v2/matter/id/${record.matter_digital_id}/overview`,
       matterName: record.matter_name,
       resultData,
       evaluateResult,

@@ -50,12 +50,12 @@ function Overview() {
   const flagPieData = data?.pieChartData?.flagPie?.datasets?.[0]?.data || [0, 0];
 
   const accuracyChartData = [
-    { name: 'Without Modification', value: accuracyPieData[0] },
-    { name: 'With Modification', value: accuracyPieData[1] }
+    { name: 'Unmodified', value: accuracyPieData[0] },
+    { name: 'Modified', value: accuracyPieData[1] }
   ];
 
   const flagChartData = [
-    { name: 'Not Flagged', value: flagPieData[0] },
+    { name: '✅', value: flagPieData[0] },
     { name: 'Flagged', value: flagPieData[1] }
   ];
 

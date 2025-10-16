@@ -34,8 +34,10 @@ class OverviewController {
           case 'monthly':
             start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
             break;
-          default: // daily
-            start = new Date(now.setDate(now.getDate() - 7)).toISOString().split('T')[0];
+          default: // daily - show last 7 days with daily granularity
+            const sevenDaysAgo = new Date(now);
+            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 to include today = 7 days total
+            start = sevenDaysAgo.toISOString().split('T')[0];
         }
       }
 

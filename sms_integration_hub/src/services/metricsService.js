@@ -9,31 +9,84 @@ class MetricsService {
   calculateRates(metricsData) {
     const {
       total_sendable,
-      approved_sent,
-      flagged_count,
-      total_records
+      sent_without_modification,
+      flagged_count
     } = metricsData;
 
     const accuracyRate = total_sendable > 0 
-      ? (approved_sent / total_sendable * 100).toFixed(2) 
+      ? (sent_without_modification / total_sendable * 100).toFixed(2) 
       : 0;
     
-    const flagRate = total_records > 0 
-      ? (flagged_count / total_records * 100).toFixed(2) 
+    const flagRate = total_sendable > 0 
+      ? (flagged_count / total_sendable * 100).toFixed(2) 
       : 0;
 
     return {
       accuracyRate: {
-        send: approved_sent,
+        send: sent_without_modification,
         total: total_sendable,
         rate: parseFloat(accuracyRate)
       },
       flagRate: {
         flagged: flagged_count,
-        total: total_records,
+        total: total_sendable,
         rate: parseFloat(flagRate)
       }
     };
+  }
+
+  /**
+   * Calculate period-specific metrics from time-series data
+   * @param {Array} timeSeriesData - Time-series data array
+   * @param {string} period - 'daily', 'monthly', or 'yearly'
+   */
+  calculatePeriodMetrics(timeSeriesData, period) {
+    if (!timeSeriesData || timeSeriesData.length === 0) {
+      return {
+        total_records: 0,
+        total_sendable: 0,
+        sent_without_modification: 0,
+        sent_with_modification: 0,
+        flagged_count: 0
+      };
+    }
+
+    let relevantData;
+
+    switch(period) {
+      case 'daily':
+        // For daily view, use only the last day (most recent)
+        relevantData = [timeSeriesData[timeSeriesData.length - 1]];
+        break;
+      
+      case 'monthly':
+      case 'yearly':
+        // Sum all periods in the time series
+        relevantData = timeSeriesData;
+        break;
+      
+      default:
+        relevantData = timeSeriesData;
+    }
+
+    // Aggregate the relevant data - ensure all values are converted to numbers
+    const aggregated = relevantData.reduce((acc, item) => {
+      return {
+        total_records: Number(acc.total_records) + Number(item.total_records || 0),
+        total_sendable: Number(acc.total_sendable) + Number(item.total_sendable || 0),
+        sent_without_modification: Number(acc.sent_without_modification) + Number(item.sent_without_modification || 0),
+        sent_with_modification: Number(acc.sent_with_modification) + Number(item.sent_with_modification || 0),
+        flagged_count: Number(acc.flagged_count) + Number(item.flagged_count || 0)
+      };
+    }, {
+      total_records: 0,
+      total_sendable: 0,
+      sent_without_modification: 0,
+      sent_with_modification: 0,
+      flagged_count: 0
+    });
+
+    return aggregated;
   }
 
   /**
@@ -44,7 +97,7 @@ class MetricsService {
       sent_without_modification,
       sent_with_modification,
       flagged_count,
-      total_records
+      total_sendable
     } = metricsData;
 
     return {
@@ -54,7 +107,7 @@ class MetricsService {
       ),
       flagPie: chartService.prepareFlagPieChart(
         flagged_count || 0,
-        (total_records - flagged_count) || 0
+        (total_sendable - flagged_count) || 0
       )
     };
   }
@@ -78,7 +131,7 @@ class MetricsService {
       groupBy = 'year';
     }
 
-    // Get aggregate metrics
+    // Get aggregate metrics (still used for fallback/validation)
     const metricsData = await aiResultModel.getMetrics(startDate, endDate);
     
     // Get time series data
@@ -88,11 +141,14 @@ class MetricsService {
       groupBy
     );
 
-    // Calculate rates
-    const rates = this.calculateRates(metricsData);
+    // Calculate period-specific metrics from time-series data
+    const periodMetrics = this.calculatePeriodMetrics(timeSeriesData, period);
 
-    // Prepare chart data
-    const pieChartData = this.preparePieChartData(metricsData);
+    // Calculate rates using period-specific metrics
+    const rates = this.calculateRates(periodMetrics);
+
+    // Prepare chart data using period-specific metrics
+    const pieChartData = this.preparePieChartData(periodMetrics);
     const lineChartData = this.prepareLineChartData(timeSeriesData);
 
     // Calculate statistics for line chart data
@@ -115,7 +171,7 @@ class MetricsService {
         pie: chartService.getChartOptions('pie'),
         line: chartService.getChartOptions('line')
       },
-      rawMetrics: metricsData,
+      rawMetrics: periodMetrics, // Use period-specific metrics instead of total
       period
     };
   }

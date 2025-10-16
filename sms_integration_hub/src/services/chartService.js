@@ -57,18 +57,18 @@ class ChartService {
       const labels = [];
       const accuracyData = [];
       const sendableData = [];
-      const approvedData = [];
+      const sentWithoutModData = [];
   
       timeSeriesData.forEach(item => {
         labels.push(item.time_period);
         
         const accuracyRate = item.total_sendable > 0
-          ? (item.approved_sent / item.total_sendable * 100)
+          ? (item.sent_without_modification / item.total_sendable * 100)
           : 0;
   
         accuracyData.push(parseFloat(accuracyRate.toFixed(2)));
         sendableData.push(item.total_sendable);
-        approvedData.push(item.approved_sent);
+        sentWithoutModData.push(item.sent_without_modification);
       });
   
       return {
@@ -87,7 +87,7 @@ class ChartService {
         ],
         rawData: {
           sendable: sendableData,
-          approved: approvedData
+          sentWithoutModification: sentWithoutModData
         }
       };
     }
@@ -105,12 +105,12 @@ class ChartService {
       timeSeriesData.forEach(item => {
         labels.push(item.time_period);
         
-        const flagRate = item.total_records > 0
-          ? (item.flagged_count / item.total_records * 100)
+        const flagRate = item.total_sendable > 0
+          ? (item.flagged_count / item.total_sendable * 100)
           : 0;
   
         flagData.push(parseFloat(flagRate.toFixed(2)));
-        totalData.push(item.total_records);
+        totalData.push(item.total_sendable);
         flaggedData.push(item.flagged_count);
       });
   
@@ -148,11 +148,11 @@ class ChartService {
         labels.push(item.time_period);
         
         const accuracyRate = item.total_sendable > 0
-          ? (item.approved_sent / item.total_sendable * 100)
+          ? (item.sent_without_modification / item.total_sendable * 100)
           : 0;
   
-        const flagRate = item.total_records > 0
-          ? (item.flagged_count / item.total_records * 100)
+        const flagRate = item.total_sendable > 0
+          ? (item.flagged_count / item.total_sendable * 100)
           : 0;
   
         accuracyData.push(parseFloat(accuracyRate.toFixed(2)));

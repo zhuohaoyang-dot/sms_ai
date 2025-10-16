@@ -71,7 +71,7 @@ async function runTests() {
         ai.created_time,
         m.matter_name
       FROM bl_venture_ai.bl_ai_generate_result ai
-      LEFT JOIN ${process.env.DB_NAME_MATTER}.bl_matter m ON ai.matter_id = m.id
+      LEFT JOIN ${process.env.DB_NAME_MATTER}.bl_matter m ON ai.matter_id = m.matter_id
       WHERE ai.evaluate_result IS NOT NULL
       LIMIT 3`
     );
