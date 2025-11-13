@@ -4,7 +4,7 @@ const aiResultModel = require('../models/aiGenerateResult');
 class BackofficeController {
   /**
    * GET /api/backoffice/records
-   * Query params: startDate, endDate, page, limit
+   * Query params: startDate, endDate, page, limit, needHumanReview, flagStatus
    */
   async getRecords(req, res) {
     try {
@@ -12,7 +12,9 @@ class BackofficeController {
         startDate,
         endDate,
         page = 1,
-        limit = 50
+        limit = 50,
+        needHumanReview = 'all',
+        flagStatus = 'all'
       } = req.query;
 
       // Validate dates
@@ -30,15 +32,17 @@ class BackofficeController {
       const startDateTime = `${startDate} 00:00:00`;
       const endDateTime = `${endDate} 23:59:59`;
 
-      // Get records and total count
+      // Get records and total count with filters
       const [records, total] = await Promise.all([
         aiResultModel.getBackofficeRecords(
           startDateTime,
           endDateTime,
           parseInt(limit),
-          offset
+          offset,
+          needHumanReview,
+          flagStatus
         ),
-        aiResultModel.getBackofficeRecordsCount(startDateTime, endDateTime)
+        aiResultModel.getBackofficeRecordsCount(startDateTime, endDateTime, needHumanReview, flagStatus)
       ]);
 
       res.json({

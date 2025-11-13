@@ -1,0 +1,196 @@
+/* src/components/ReviewQueue.css */
+.review-queue-container {
+  padding: 24px;
+  height: 100%;
+  overflow-y: auto;
+  background-color: #f9fafb;
+}
+
+.review-queue-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.review-queue-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.results-info {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.loading-message,
+.error-message {
+  padding: 24px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.loading-message {
+  color: #6b7280;
+}
+
+.error-message {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border-radius: 8px;
+}
+
+.table-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow-x: auto;
+  margin-bottom: 24px;
+}
+
+.review-queue-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.review-queue-table thead {
+  background-color: #f3f4f6;
+}
+
+.review-queue-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.review-queue-table tbody tr {
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.review-queue-table tbody tr:hover {
+  background-color: #f9fafb;
+}
+
+.review-queue-table td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.no-data {
+  text-align: center;
+  padding: 48px 16px;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.matter-link {
+  color: #3b82f6;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.matter-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.no-matter {
+  color: #9ca3af;
+  font-style: italic;
+}
+
+.review-toggle {
+  padding: 6px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.review-toggle.reviewed {
+  background-color: #10b981;
+  color: white;
+}
+
+.review-toggle.reviewed:hover {
+  background-color: #059669;
+}
+
+.review-toggle.not-reviewed {
+  background-color: #f59e0b;
+  color: white;
+}
+
+.review-toggle.not-reviewed:hover {
+  background-color: #d97706;
+}
+
+.time-cell {
+  white-space: nowrap;
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.details-button {
+  padding: 6px 12px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.details-button:hover {
+  background-color: #2563eb;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+}
+
+.pagination-button {
+  padding: 8px 16px;
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.pagination-button:disabled {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+}
+
+.page-info {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}

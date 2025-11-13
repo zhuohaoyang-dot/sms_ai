@@ -1,5 +1,5 @@
 // src/components/Sidebar.jsx
-import { LayoutDashboard, Briefcase } from 'lucide-react';
+import { LayoutDashboard, Briefcase, ClipboardList } from 'lucide-react';
 import './Sidebar.css';
 
 function Sidebar({ activePanel, setActivePanel }) {
@@ -24,6 +24,14 @@ function Sidebar({ activePanel, setActivePanel }) {
         >
           <Briefcase size={20} />
           <span>Backoffice</span>
+        </button>
+
+        <button
+          className={`nav-item ${activePanel === 'reviewQueue' ? 'active' : ''}`}
+          onClick={() => setActivePanel('reviewQueue')}
+        >
+          <ClipboardList size={20} />
+          <span>Review Queue</span>
         </button>
       </nav>
     </div>

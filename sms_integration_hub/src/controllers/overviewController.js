@@ -4,11 +4,11 @@ const metricsService = require('../services/metricsService');
 class OverviewController {
   /**
    * GET /api/overview/metrics
-   * Query params: period (daily/monthly/yearly), startDate, endDate
+   * Query params: period (daily/monthly/yearly), startDate, endDate, dateMode (range/exact/month/year)
    */
   async getMetrics(req, res) {
     try {
-      const { period = 'daily', startDate, endDate } = req.query;
+      const { period = 'daily', startDate, endDate, dateMode = 'range' } = req.query;
 
       // Validate period
       const validPeriods = ['daily', 'monthly', 'yearly'];
@@ -19,25 +19,48 @@ class OverviewController {
         });
       }
 
-      // Set default dates if not provided
+      // Set default dates if not provided based on dateMode
       let start = startDate;
       let end = endDate;
 
       if (!start || !end) {
         const now = new Date();
-        end = now.toISOString().split('T')[0];
 
-        switch(period) {
-          case 'yearly':
-            start = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
-            break;
-          case 'monthly':
-            start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-            break;
-          default: // daily - show last 7 days with daily granularity
-            const sevenDaysAgo = new Date(now);
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6); // -6 to include today = 7 days total
-            start = sevenDaysAgo.toISOString().split('T')[0];
+        if (dateMode === 'exact' && startDate) {
+          // Exact date: show past 5 days including the selected date
+          const selectedDate = new Date(startDate);
+          const fiveDaysAgo = new Date(selectedDate);
+          fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4 to include selected date = 5 days total
+          start = fiveDaysAgo.toISOString().split('T')[0];
+          end = startDate;
+        } else if (dateMode === 'month' && startDate) {
+          // Month selection: YYYY-MM format
+          const [year, month] = startDate.split('-');
+          const monthStart = new Date(parseInt(year), parseInt(month) - 1, 1);
+          const monthEnd = new Date(parseInt(year), parseInt(month), 0); // Last day of month
+          start = monthStart.toISOString().split('T')[0];
+          end = monthEnd.toISOString().split('T')[0];
+        } else if (dateMode === 'year' && startDate) {
+          // Year selection: YYYY format
+          const year = startDate;
+          start = `${year}-01-01`;
+          end = `${year}-12-31`;
+        } else {
+          // Default range mode or fallback
+          end = now.toISOString().split('T')[0];
+
+          switch(period) {
+            case 'yearly':
+              start = new Date(now.getFullYear(), 0, 1).toISOString().split('T')[0];
+              break;
+            case 'monthly':
+              start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+              break;
+            default: // daily - show last 5 days with daily granularity
+              const fiveDaysAgo = new Date(now);
+              fiveDaysAgo.setDate(fiveDaysAgo.getDate() - 4); // -4 to include today = 5 days total
+              start = fiveDaysAgo.toISOString().split('T')[0];
+          }
         }
       }
 

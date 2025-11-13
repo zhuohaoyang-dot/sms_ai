@@ -5,36 +5,44 @@ import { getBackofficeRecords, getRecordDetail } from '../services/api';
 import RecordModal from './RecordModal';
 import './Backoffice.css';
 
-function Backoffice() {
+function Backoffice({ filters, selectionMode, selectedItems, onToggleItem }) {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
-  
-  // Date filters
-  const [startDate, setStartDate] = useState(() => {
-    const date = new Date();
-    date.setDate(date.getDate() - 7);
-    return date.toISOString().split('T')[0];
-  });
-  const [endDate, setEndDate] = useState(() => {
-    return new Date().toISOString().split('T')[0];
-  });
-  
+
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [limit] = useState(20);
 
   useEffect(() => {
-    fetchRecords();
-  }, [startDate, endDate, currentPage]);
+    if (filters) {
+      setCurrentPage(1); // Reset to page 1 when filters change
+      fetchRecords();
+    }
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (filters) {
+      fetchRecords();
+    }
+  }, [currentPage]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchRecords = async () => {
+    if (!filters) return;
+
     try {
       setLoading(true);
-      const result = await getBackofficeRecords(startDate, endDate, currentPage, limit);
+      const result = await getBackofficeRecords(
+        filters.startDate,
+        filters.endDate,
+        currentPage,
+        limit,
+        filters.needHumanReview,
+        filters.flagStatus
+      );
       setRecords(result.data.records);
       setTotalPages(result.data.pagination.totalPages);
       setError(null);
@@ -57,7 +65,9 @@ function Backoffice() {
   };
 
   const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleString();
+    // Backend already returns Chicago time in format: "YYYY-MM-DD HH:mm:ss CST/CDT"
+    // Just display it as-is
+    return dateString || '';
   };
 
   return (
@@ -67,31 +77,6 @@ function Backoffice() {
         <div className="header-left">
           <h1>Backoffice</h1>
           <p className="subtitle">AI generated results and evaluations</p>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="filters">
-        <div className="date-filters">
-          <div className="filter-group">
-            <label>Start Date</label>
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-          </div>
-          <div className="filter-group">
-            <label>End Date</label>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-          </div>
-          <button className="apply-btn" onClick={fetchRecords}>
-            Apply
-          </button>
         </div>
       </div>
 
@@ -106,6 +91,7 @@ function Backoffice() {
             <table className="data-table">
               <thead>
                 <tr>
+                  {selectionMode && <th>Select</th>}
                   <th>Matter Link</th>
                   <th>Need Human Review</th>
                   <th>Modified</th>
@@ -117,6 +103,16 @@ function Backoffice() {
               <tbody>
                 {records.map((record) => (
                   <tr key={record.id}>
+                    {selectionMode && (
+                      <td>
+                        <input
+                          type="checkbox"
+                          checked={selectedItems.includes(record.id)}
+                          onChange={() => onToggleItem(record.id)}
+                          className="selection-checkbox"
+                        />
+                      </td>
+                    )}
                     <td>
                       <a
                         href={`https://${record.matterLink}`}

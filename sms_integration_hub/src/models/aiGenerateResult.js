@@ -1,5 +1,6 @@
 // src/models/aiGenerateResult.js
 const { query } = require('../config/database');
+const { convertToChicagoTime } = require('../utils/timezone');
 
 class AIGenerateResultModel {
   constructor() {
@@ -90,10 +91,33 @@ class AIGenerateResultModel {
      * @param {string} endDate
      * @param {number} limit
      * @param {number} offset
+     * @param {string} needHumanReview - Filter: 'all', 'yes', 'no'
+     * @param {string} flagStatus - Filter: 'all', 'none', 'flag'
      */
-  async getBackofficeRecords(startDate, endDate, limit = 50, offset = 0) {
+  async getBackofficeRecords(startDate, endDate, limit = 50, offset = 0, needHumanReview = 'all', flagStatus = 'all') {
+    let whereConditions = [
+      'ai.evaluate_result IS NOT NULL',
+      'ai.created_time BETWEEN ? AND ?'
+    ];
+    const params = [startDate, endDate];
+
+    // Add needHumanReview filter
+    if (needHumanReview === 'yes') {
+      whereConditions.push('JSON_EXTRACT(ai.evaluate_result, \'$.approved\') = false');
+    } else if (needHumanReview === 'no') {
+      whereConditions.push('JSON_EXTRACT(ai.evaluate_result, \'$.approved\') = true');
+    }
+
+    // Add flagStatus filter
+    if (flagStatus === 'flag') {
+      whereConditions.push('JSON_EXTRACT(ai.evaluate_result, \'$.flag\') IS NOT NULL');
+      whereConditions.push('JSON_EXTRACT(ai.evaluate_result, \'$.flag\') != \'null\'');
+    } else if (flagStatus === 'none') {
+      whereConditions.push('(JSON_EXTRACT(ai.evaluate_result, \'$.flag\') IS NULL OR JSON_EXTRACT(ai.evaluate_result, \'$.flag\') = \'null\')');
+    }
+
     const sql = `
-      SELECT 
+      SELECT
         ai.id,
         ai.matter_id,
         ai.result_data,
@@ -104,13 +128,13 @@ class AIGenerateResultModel {
         m.matter_name
       FROM bl_venture_ai.bl_ai_generate_result ai
       LEFT JOIN ${this.matterDbName}.bl_matter m ON ai.matter_id = m.matter_id
-      WHERE ai.evaluate_result IS NOT NULL
-        AND ai.created_time BETWEEN ? AND ?
+      WHERE ${whereConditions.join(' AND ')}
       ORDER BY ai.created_time DESC
       LIMIT ? OFFSET ?
     `;
 
-    const records = await query(this.dbName, sql, [startDate, endDate, limit, offset]);
+    params.push(limit, offset);
+    const records = await query(this.dbName, sql, params);
     
     // Parse JSON fields and format data
     return records.map(record => {
@@ -141,7 +165,7 @@ class AIGenerateResultModel {
         approved: evaluateResult.approved || false,
         flag: evaluateResult.flag || 'null',
         sendStatus: record.send_status, // Add send_status for Modified column
-        createdTime: record.created_time,
+        createdTime: convertToChicagoTime(record.created_time),
         // Complete data for modal
         resultData: {
           text: resultData.text || '',
@@ -161,16 +185,40 @@ class AIGenerateResultModel {
 
   /**
    * Get total count for pagination
+   * @param {string} startDate
+   * @param {string} endDate
+   * @param {string} needHumanReview - Filter: 'all', 'yes', 'no'
+   * @param {string} flagStatus - Filter: 'all', 'none', 'flag'
    */
-  async getBackofficeRecordsCount(startDate, endDate) {
+  async getBackofficeRecordsCount(startDate, endDate, needHumanReview = 'all', flagStatus = 'all') {
+    let whereConditions = [
+      'evaluate_result IS NOT NULL',
+      'created_time BETWEEN ? AND ?'
+    ];
+    const params = [startDate, endDate];
+
+    // Add needHumanReview filter
+    if (needHumanReview === 'yes') {
+      whereConditions.push('JSON_EXTRACT(evaluate_result, \'$.approved\') = false');
+    } else if (needHumanReview === 'no') {
+      whereConditions.push('JSON_EXTRACT(evaluate_result, \'$.approved\') = true');
+    }
+
+    // Add flagStatus filter
+    if (flagStatus === 'flag') {
+      whereConditions.push('JSON_EXTRACT(evaluate_result, \'$.flag\') IS NOT NULL');
+      whereConditions.push('JSON_EXTRACT(evaluate_result, \'$.flag\') != \'null\'');
+    } else if (flagStatus === 'none') {
+      whereConditions.push('(JSON_EXTRACT(evaluate_result, \'$.flag\') IS NULL OR JSON_EXTRACT(evaluate_result, \'$.flag\') = \'null\')');
+    }
+
     const sql = `
       SELECT COUNT(*) as total
       FROM bl_venture_ai.bl_ai_generate_result
-      WHERE evaluate_result IS NOT NULL
-        AND created_time BETWEEN ? AND ?
+      WHERE ${whereConditions.join(' AND ')}
     `;
 
-    const result = await query(this.dbName, sql, [startDate, endDate]);
+    const result = await query(this.dbName, sql, params);
     return result[0].total;
   }
  
@@ -248,7 +296,7 @@ class AIGenerateResultModel {
       modifiedData,
       evaluateResult,
       sendStatus: record.send_status,
-      createdTime: record.created_time
+      createdTime: convertToChicagoTime(record.created_time)
     };
   }
 }

@@ -249,3 +249,10 @@
   background: #f3f4f6;
   color: #6b7280;
 }
+
+.selection-checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #3b82f6;
+}

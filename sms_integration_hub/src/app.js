@@ -9,6 +9,7 @@ const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
 // Import routes
 const overviewRoutes = require('./routes/overview');
 const backofficeRoutes = require('./routes/backoffice');
+const reviewQueueRoutes = require('./routes/reviewQueue');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -41,6 +42,12 @@ app.get('/', (req, res) => {
       backoffice: {
         records: 'GET /api/backoffice/records?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&page=1&limit=50',
         recordDetail: 'GET /api/backoffice/record/:id'
+      },
+      reviewQueue: {
+        items: 'GET /api/review-queue/items?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&page=1&limit=50',
+        add: 'POST /api/review-queue/add',
+        updateStatus: 'PUT /api/review-queue/:id/review',
+        autoPopulate: 'POST /api/review-queue/auto-populate'
       }
     },
     documentation: 'See README.md for full API documentation'
@@ -60,6 +67,7 @@ app.get('/health', async (req, res) => {
 // API Routes
 app.use('/api/overview', overviewRoutes);
 app.use('/api/backoffice', backofficeRoutes);
+app.use('/api/review-queue', reviewQueueRoutes);
 
 // 404 handler
 app.use(notFoundHandler);
@@ -86,7 +94,11 @@ async function startServer() {
       console.log(`\nAvailable endpoints:`);
       console.log(`  GET /api/overview/metrics`);
       console.log(`  GET /api/backoffice/records`);
-      console.log(`  GET /api/backoffice/record/:id\n`);
+      console.log(`  GET /api/backoffice/record/:id`);
+      console.log(`  GET /api/review-queue/items`);
+      console.log(`  POST /api/review-queue/add`);
+      console.log(`  PUT /api/review-queue/:id/review`);
+      console.log(`  POST /api/review-queue/auto-populate\n`);
     });
   } catch (error) {
     console.error('Failed to start server:', error);

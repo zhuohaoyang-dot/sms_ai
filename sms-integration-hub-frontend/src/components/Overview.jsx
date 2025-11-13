@@ -5,20 +5,36 @@ import { TrendingUp, Flag, CheckCircle, AlertCircle } from 'lucide-react';
 import { getOverviewMetrics } from '../services/api';
 import './Overview.css';
 
-function Overview() {
-  const [period, setPeriod] = useState('daily');
+function Overview({ filters }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, [period]);
+    if (filters) {
+      fetchData();
+    }
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchData = async () => {
+    if (!filters) return;
+
+    // Determine period based on date mode
+    let period = 'daily';
+    if (filters.dateMode === 'month') {
+      period = 'monthly';
+    } else if (filters.dateMode === 'year') {
+      period = 'yearly';
+    }
+
     try {
       setLoading(true);
-      const result = await getOverviewMetrics(period);
+      const result = await getOverviewMetrics(
+        period,
+        filters.startDate,
+        filters.endDate,
+        filters.dateMode
+      );
       setData(result.data);
       setError(null);
     } catch (err) {
@@ -75,27 +91,6 @@ function Overview() {
         <div className="header-left">
           <h1>Overview</h1>
           <p className="subtitle">Dashboard metrics and analytics</p>
-        </div>
-        
-        <div className="period-selector">
-          <button 
-            className={period === 'daily' ? 'active' : ''} 
-            onClick={() => setPeriod('daily')}
-          >
-            Daily
-          </button>
-          <button 
-            className={period === 'monthly' ? 'active' : ''} 
-            onClick={() => setPeriod('monthly')}
-          >
-            Monthly
-          </button>
-          <button 
-            className={period === 'yearly' ? 'active' : ''} 
-            onClick={() => setPeriod('yearly')}
-          >
-            Yearly
-          </button>
         </div>
       </div>
 
