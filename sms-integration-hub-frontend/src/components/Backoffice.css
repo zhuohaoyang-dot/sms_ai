@@ -160,9 +160,12 @@
   }
   
   .time-cell {
+    font-family: 'Inter', sans-serif;
     font-size: 12px;
-    color: #6b7280;
+    font-weight: 200;
+    color: #9ca3af;
     white-space: nowrap;
+    letter-spacing: 0.02em;
   }
   
   .details-btn {
